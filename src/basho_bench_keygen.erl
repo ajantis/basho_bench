@@ -92,6 +92,10 @@ new({truncated_pareto_int, MaxKey}, Id) ->
     fun() -> erlang:min(MaxKey, Pareto()) end;
 new(uuid_v4, _Id) ->
     fun() -> uuid:v4() end;
+new(double_uuid_string, _Id) ->
+    fun() ->
+            erlang:list_to_binary([ uuid:to_string(uuid:v4()), ":0:",  uuid:to_string(uuid:v4()) ])
+    end;
 new({function, Module, Function, Args}, Id) ->
     case code:ensure_loaded(Module) of
         {module, Module} ->
@@ -108,6 +112,8 @@ new(Bin, _Id) when is_binary(Bin) ->
 new(Other, _Id) ->
     ?FAIL_MSG("Unsupported key generator requested: ~p\n", [Other]).
 
+dimension({double_uuid_string, _}) ->
+    undefined;
 dimension({int_to_str, InputGen}) ->
     dimension(InputGen);
 dimension({int_to_bin, InputGen}) ->
